@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div id="announcement-bar">Welcome to our secure platform!</div>
+    
+    <div class="grid">
+        <!-- Account Section -->
+        <div class="glass-card">
+            <h3>Account Settings</h3>
+            <p id="user-display">User: ...</p>
+            <input type="text" id="new-username" placeholder="New Username">
+            <button class="btn" onclick="changeUsername()">Update Name (3 days)</button>
+            <hr>
+            <input type="password" id="new-pass" placeholder="New Password">
+            <button class="btn" onclick="changePassword()">Change Pass (30 days)</button>
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="glass-card">
+            <h3>Wallet: <span id="balance-display">$0</span></h3>
+            <p>Top Up via QR</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YOUR_BANK_INFO" alt="QR">
+            <input type="number" id="topup-amount" placeholder="Amount">
+            <button class="btn" onclick="requestTopup()">Send Deposit Request</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Specific Client Logic
+        auth.onAuthStateChanged(user => {
+            if(!user) location.href = "index.html";
+            db.ref('users/'+user.uid).on('value', snap => {
+                const d = snap.val();
+                document.getElementById('user-display').innerText = `Username: ${d.username}`;
+                document.getElementById('balance-display').innerText = `$${d.balance}`;
+            });
+            db.ref('announcement').on('value', snap => {
+                if(snap.exists()) document.getElementById('announcement-bar').innerText = snap.val().text;
+            });
+        });
+    </script>
+</body>
+</html>
